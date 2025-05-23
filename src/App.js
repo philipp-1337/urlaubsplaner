@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react'; // Suspense und lazy importieren
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CalendarProvider } from './context/CalendarContext';
+import { Loader2 } from 'lucide-react'; // Importiere Loader2
 
 // Import components
 import Header from './components/common/Header';
@@ -20,7 +21,8 @@ const SettingsPage = lazy(() => import('./components/settings/SettingsPage'));
 
 // Fallback-Komponente für Suspense
 const RouteLoadingFallback = () => (
-  <div className="flex-grow flex items-center justify-center bg-gray-100 text-xl">
+  <div className="flex-grow flex flex-col items-center justify-center bg-gray-100 text-xl text-gray-700">
+    <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
     Lade Ansicht...
   </div>
 );
@@ -30,7 +32,10 @@ function AppContent() { // Renamed from AppRoutes and restructured
 
   if (loadingAuth) {
     // Adjusted to be flex-grow as parent div handles min-h-screen
-    return <div className="flex-grow flex items-center justify-center bg-gray-100 text-xl">Authentifizierung wird geladen...</div>; // Dieser Ladeindikator bleibt für die Auth-Prüfung
+    return <div className="flex-grow flex flex-col items-center justify-center bg-gray-100 text-xl text-gray-700">
+      <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
+      Authentifizierung wird geladen...
+    </div>;
   }
 
   return (
