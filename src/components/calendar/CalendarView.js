@@ -20,12 +20,11 @@ const CalendarView = ({ navigateToView }) => {
     currentMonth,
     currentYear,
     handleMonatWechsel,
-    tagDaten, // Ensure tagDaten is destructured to check for person-specific entries
     getTageImMonat,
     personen,
     ausgewaehltePersonId,
+    tagDaten, // Destructure tagDaten for isGlobal check and if handleDayCellClick needs it
     getTagStatus,
-    setTagStatus,
     getPersonGesamtUrlaub,
     getPersonGesamtDurchfuehrung,
     getPersonGesamtFortbildung,
@@ -33,7 +32,8 @@ const CalendarView = ({ navigateToView }) => {
     getPersonGesamtFeiertage,
     setAnsichtModus, // Added for navigation
     setAusgewaehltePersonId, // Need setter to sync context state
-  } = useCalendar(); // Destructure directly from the hook's return value
+    handleDayCellClick // Use the centralized handler
+  } = useCalendar();
 
   const { personId: personIdFromUrl } = useParams(); // Get personId from URL
   
@@ -233,7 +233,7 @@ const CalendarView = ({ navigateToView }) => {
                   day={tag}
                   status={status}
                   isWeekend={tag.istWochenende}
-                  onClick={() => handleDayCellClick(tag)}
+                  onClick={() => handleDayCellClick(ausgewaehltePerson.id, tag, currentMonth, currentYear)} // Use centralized handler
                   view="calendar" // Pass view prop
                   isGlobal={isGlobal} // Pass the new prop
                 />

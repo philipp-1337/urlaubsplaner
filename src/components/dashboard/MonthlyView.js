@@ -24,7 +24,7 @@ const MonthlyView = () => {
     loginError,
     currentMonth,
     currentYear,
-    tagDaten, // Destructure tagDaten for checking person-specific entries
+    tagDaten, // Will be needed for isGlobal check
     handleMonatWechsel,
     getTageImMonat, // Keep getTageImMonat
     personen,
@@ -330,7 +330,7 @@ const MonthlyView = () => {
 
                       const personIdStr = String(person.id);
                       const personSpecificKey = `${personIdStr}-${currentYear}-${currentMonth}-${tag.tag}`;
-                      const hasPersonSpecificEntry = tagDaten.hasOwnProperty(personSpecificKey);
+                      const hasPersonSpecificEntry = tagDaten.hasOwnProperty(personSpecificKey); // Access tagDaten from useCalendar
                       const isGlobal = status !== null && !hasPersonSpecificEntry;
 
                       if (tag.istWochenende) {

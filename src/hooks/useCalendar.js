@@ -25,7 +25,7 @@ export const useCalendar = () => {
     employmentData, // Get employmentData from context
     resturlaub,
     loginError
-  } = context;
+  } = context; // Add tagDaten here
   
   const { isLoadingData, setTagStatus } = useFirestore();
   
@@ -98,7 +98,7 @@ export const useCalendar = () => {
   }, [personen, currentMonth, currentYear, getTageImMonat, getTagStatus]); // Dependencies updated
 
   // Getter functions that use the memoized monthlyPersonTotals for the current month/year
-  const getPersonGesamtUrlaub = (personIdInput, monat = currentMonth, jahr = currentYear) => {
+  const getPersonGesamtUrlaub = useCallback((personIdInput, monat = currentMonth, jahr = currentYear) => {
      // If the request is for the current month/year, use the memoized value
      if (monat === currentMonth && jahr === currentYear && monthlyPersonTotals[personIdInput]) {
         return monthlyPersonTotals[personIdInput].urlaub;
@@ -112,9 +112,9 @@ export const useCalendar = () => {
        }
      });
      return count;
-  };
+  }, [currentMonth, currentYear, monthlyPersonTotals, getTageImMonat, getTagStatus]);
 
-  const getPersonGesamtDurchfuehrung = (personIdInput, monat = currentMonth, jahr = currentYear) => {
+  const getPersonGesamtDurchfuehrung = useCallback((personIdInput, monat = currentMonth, jahr = currentYear) => {
     if (monat === currentMonth && jahr === currentYear && monthlyPersonTotals[personIdInput]) {
        return monthlyPersonTotals[personIdInput].durchfuehrung;
     }
@@ -126,9 +126,9 @@ export const useCalendar = () => {
       }
     });
     return count;
-  };
+  }, [currentMonth, currentYear, monthlyPersonTotals, getTageImMonat, getTagStatus]);
 
-  const getPersonGesamtFortbildung = (personIdInput, monat = currentMonth, jahr = currentYear) => {
+  const getPersonGesamtFortbildung = useCallback((personIdInput, monat = currentMonth, jahr = currentYear) => {
     if (monat === currentMonth && jahr === currentYear && monthlyPersonTotals[personIdInput]) {
        return monthlyPersonTotals[personIdInput].fortbildung;
     }
@@ -140,9 +140,9 @@ export const useCalendar = () => {
       }
     });
     return count;
-  };
+  }, [currentMonth, currentYear, monthlyPersonTotals, getTageImMonat, getTagStatus]);
 
-  const getPersonGesamtInterneTeamtage = (personIdInput, monat = currentMonth, jahr = currentYear) => {
+  const getPersonGesamtInterneTeamtage = useCallback((personIdInput, monat = currentMonth, jahr = currentYear) => {
     if (monat === currentMonth && jahr === currentYear && monthlyPersonTotals[personIdInput]) {
        return monthlyPersonTotals[personIdInput].interneTeamtage;
     }
@@ -154,9 +154,9 @@ export const useCalendar = () => {
       }
     });
     return count;
-  };
+  }, [currentMonth, currentYear, monthlyPersonTotals, getTageImMonat, getTagStatus]);
 
-  const getPersonGesamtFeiertage = (personIdInput, monat = currentMonth, jahr = currentYear) => {
+  const getPersonGesamtFeiertage = useCallback((personIdInput, monat = currentMonth, jahr = currentYear) => {
     if (monat === currentMonth && jahr === currentYear && monthlyPersonTotals[personIdInput]) {
        return monthlyPersonTotals[personIdInput].feiertage;
     }
@@ -168,7 +168,7 @@ export const useCalendar = () => {
       }
     });
     return count;
-  };
+  }, [currentMonth, currentYear, monthlyPersonTotals, getTageImMonat, getTagStatus]);
 
   // Memoize overall monthly totals for the current month/year
   const overallMonthlyTotals = useMemo(() => {
@@ -300,8 +300,43 @@ export const useCalendar = () => {
      return { urlaubCount, durchfuehrungCount, fortbildungCount, interneTeamtageCount, feiertagCount };
   };
 
-  // Berechnet Urlaubstage pro Person im gesamten Jahr
+  // Memoize yearly totals per person for the current global year
+  const yearlyPersonTotals = useMemo(() => {
+    const totals = {};
+    // Guard clause: if currentYear is not set or no personen, return empty totals
+    if (typeof currentYear === 'undefined' || !currentYear === null || personen.length === 0) return totals;
+
+    personen.forEach(person => {
+      let jahresUrlaub = 0;
+      let jahresDurchfuehrung = 0;
+      let jahresFortbildung = 0;
+      let jahresInterneTeamtage = 0;
+      let jahresFeiertage = 0;
+
+      for (let monat = 0; monat < 12; monat++) {
+        // getPersonGesamtUrlaub etc. will use their own monthly memoization if monat === currentMonth
+        // but for yearly sum, we iterate through all months.
+        jahresUrlaub += getPersonGesamtUrlaub(person.id, monat, currentYear);
+        jahresDurchfuehrung += getPersonGesamtDurchfuehrung(person.id, monat, currentYear);
+        jahresFortbildung += getPersonGesamtFortbildung(person.id, monat, currentYear);
+        jahresInterneTeamtage += getPersonGesamtInterneTeamtage(person.id, monat, currentYear);
+        jahresFeiertage += getPersonGesamtFeiertage(person.id, monat, currentYear);
+      }
+      totals[person.id] = {
+        urlaub: jahresUrlaub,
+        durchfuehrung: jahresDurchfuehrung,
+        fortbildung: jahresFortbildung,
+        interneTeamtage: jahresInterneTeamtage,
+        feiertage: jahresFeiertage,
+      };
+    });
+    return totals;
+  }, [personen, currentYear, getPersonGesamtUrlaub, getPersonGesamtDurchfuehrung, getPersonGesamtFortbildung, getPersonGesamtInterneTeamtage, getPersonGesamtFeiertage]); // Dependencies updated
+
   const getPersonJahresUrlaub = (personIdInput, jahr = currentYear) => {
+    if (jahr === currentYear && yearlyPersonTotals[personIdInput]) {
+      return yearlyPersonTotals[personIdInput].urlaub;
+    }
     let summe = 0;
     for (let monat = 0; monat < 12; monat++) {
       summe += getPersonGesamtUrlaub(personIdInput, monat, jahr);
@@ -309,8 +344,10 @@ export const useCalendar = () => {
     return summe;
   };
   
-  // Berechnet Durchführungstage pro Person im gesamten Jahr
   const getPersonJahresDurchfuehrung = (personIdInput, jahr = currentYear) => {
+    if (jahr === currentYear && yearlyPersonTotals[personIdInput]) {
+      return yearlyPersonTotals[personIdInput].durchfuehrung;
+    }
     let summe = 0;
     for (let monat = 0; monat < 12; monat++) {
       summe += getPersonGesamtDurchfuehrung(personIdInput, monat, jahr);
@@ -318,8 +355,10 @@ export const useCalendar = () => {
     return summe;
   };
   
-  // Berechnet Fortbildungstage pro Person im gesamten Jahr
   const getPersonJahresFortbildung = (personIdInput, jahr = currentYear) => {
+    if (jahr === currentYear && yearlyPersonTotals[personIdInput]) {
+      return yearlyPersonTotals[personIdInput].fortbildung;
+    }
     let summe = 0;
     for (let monat = 0; monat < 12; monat++) {
       summe += getPersonGesamtFortbildung(personIdInput, monat, jahr);
@@ -327,9 +366,10 @@ export const useCalendar = () => {
     return summe;
   };
 
-  // Memoize yearly totals per person for the current year
-  // Berechnet Interne Teamtage pro Person im gesamten Jahr
   const getPersonJahresInterneTeamtage = (personIdInput, jahr = currentYear) => {
+    if (jahr === currentYear && yearlyPersonTotals[personIdInput]) {
+      return yearlyPersonTotals[personIdInput].interneTeamtage;
+    }
     let summe = 0;
     for (let monat = 0; monat < 12; monat++) {
       summe += getPersonGesamtInterneTeamtage(personIdInput, monat, jahr);
@@ -337,16 +377,16 @@ export const useCalendar = () => {
     return summe;
   };
 
-  // Memoize yearly totals per person for the current year
   const getPersonJahresFeiertage = (personIdInput, jahr = currentYear) => {
+    if (jahr === currentYear && yearlyPersonTotals[personIdInput]) {
+      return yearlyPersonTotals[personIdInput].feiertage;
+    }
     let summe = 0;
     for (let monat = 0; monat < 12; monat++) {
       summe += getPersonGesamtFeiertage(personIdInput, monat, jahr);
     }
     return summe;
   };
-
-  // Memoize daily totals for the current month
 
   // Memoize current year's Urlaubsanspruch per person
   // Get Urlaubsanspruch for the current (or specified) year from configurations, adjusted for part-time
@@ -387,24 +427,43 @@ export const useCalendar = () => {
 
   // handleMonatWechsel is now taken from context
 
-  // Helper function for handling clicks on day cells
-  const handleDayCellClick = (personId, tagObject) => {
-    if (!tagObject.istWochenende) {
-      const currentStatus = getTagStatus(String(personId), tagObject.tag);
-      let neuerStatus = null;
-      if (currentStatus === null) {
-        neuerStatus = 'urlaub';
-      } else if (currentStatus === 'urlaub') {
-        neuerStatus = 'durchfuehrung';
-      } else if (currentStatus === 'durchfuehrung') {
-        neuerStatus = 'fortbildung';
-      } else if (currentStatus === 'fortbildung') {
-        neuerStatus = 'interne teamtage';
-      } else if (currentStatus === 'interne teamtage') {
+  // Logic to determine the next status when a day cell is clicked
+  const getNextStatusLogic = (currentStatus, hasPersonSpecificEntry, personSpecificStatusValue) => {
+    let neuerStatus = null;
+    if (currentStatus === null) {
+      neuerStatus = 'urlaub';
+    } else if (currentStatus === 'urlaub') {
+      neuerStatus = 'durchfuehrung';
+    } else if (currentStatus === 'durchfuehrung') {
+      neuerStatus = 'fortbildung';
+    } else if (currentStatus === 'fortbildung') {
+      neuerStatus = 'interne teamtage';
+    } else if (currentStatus === 'interne teamtage') {
+      if (hasPersonSpecificEntry && personSpecificStatusValue === 'interne teamtage') {
         neuerStatus = 'feiertag';
-      } // if currentStatus is 'feiertag', neuerStatus remains null, deleting the entry.
-      
-      setTagStatus(String(personId), tagObject.tag, neuerStatus);
+      } else {
+        neuerStatus = 'urlaub';
+      }
+    } else if (currentStatus === 'feiertag') {
+      if (hasPersonSpecificEntry && personSpecificStatusValue === 'feiertag') {
+        neuerStatus = null; // Clear person-specific feiertag
+      } else {
+        neuerStatus = 'urlaub'; // Override global feiertag
+      }
+    }
+    return neuerStatus;
+  };
+
+  // Centralized handler for day cell clicks
+  const handleDayCellClick = (personId, tagObject, monat = currentMonth, jahr = currentYear) => {
+    if (!tagObject.istWochenende) {
+      const personIdStr = String(personId);
+      const currentStatus = getTagStatus(personIdStr, tagObject.tag, monat, jahr);
+      const personSpecificKey = `${personIdStr}-${jahr}-${monat}-${tagObject.tag}`;
+      const hasPersonSpecificEntry = tagDaten.hasOwnProperty(personSpecificKey);
+      const personSpecificStatusValue = tagDaten[personSpecificKey];
+      const neuerStatus = getNextStatusLogic(currentStatus, hasPersonSpecificEntry, personSpecificStatusValue);
+      setTagStatus(personIdStr, tagObject.tag, neuerStatus, monat, jahr);
     }
   };
 
@@ -453,6 +512,6 @@ export const useCalendar = () => {
     getCurrentYearUrlaubsanspruch,
     getConfiguredYears,
     employmentData, // Make sure to return employmentData
-    tagDaten, // tagDaten explizit zurückgeben
+    tagDaten, 
   };
 };
