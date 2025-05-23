@@ -11,7 +11,7 @@ import {
   query,
   where,
   addDoc, // Import addDoc from firebase/firestore
-  writeBatch // Import writeBatch from firebase/firestore
+  writeBatch, // Import writeBatch from firebase/firestore
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
@@ -28,6 +28,24 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
+// Firestore Offline-Persistence aktivieren (bewährte Methode)
+if (typeof window !== "undefined") {
+  import("firebase/firestore").then(({ enableIndexedDbPersistence }) => {
+    enableIndexedDbPersistence(db).catch((err) => {
+      if (err.code === 'failed-precondition') {
+        // Mehrere Tabs offen, Persistence kann nur in einem aktiviert werden
+        console.warn("Firestore Offline-Persistence konnte nicht aktiviert werden: Mehrere Tabs offen.");
+      } else if (err.code === 'unimplemented') {
+        // Browser unterstützt keine Offline-Persistence
+        console.warn("Firestore Offline-Persistence wird von diesem Browser nicht unterstützt.");
+      } else {
+        console.warn("Firestore Offline-Persistence Fehler:", err);
+      }
+    });
+  });
+}
+
 const auth = getAuth(app);
 
 export { 
