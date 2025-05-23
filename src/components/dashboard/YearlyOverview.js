@@ -131,8 +131,8 @@ const YearlyOverview = () => {
       }
     }, [scrollHintEnabled]);
   
-  // Zeige Skeleton, wenn Daten laden und Personenliste noch leer ist
-  if (isLoadingData && personen.length === 0) {
+  // Zeige Skeleton, wenn Daten laden
+  if (isLoadingData) {
     return <YearlyOverviewSkeleton />;
   }
 

@@ -88,8 +88,8 @@ const MonthlyDetail = () => {
     }
   }, [scrollHintEnabled]);
 
-  // Zeige Skeleton, wenn Daten laden und ausgewählte Person oder Personenliste noch leer sind
-  if (isLoadingData && (!ausgewaehltePerson || personen.length === 0)) {
+  // Zeige Skeleton, wenn Daten laden
+  if (isLoadingData) {
     return <MonthlyDetailSkeleton />;
   }
 

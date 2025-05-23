@@ -578,11 +578,8 @@ const SettingsPage = () => {
     }
   };
 
-  // Skeleton anzeigen, wenn Jahreskonfigurationen initial laden ODER
-  // wenn jahresspezifische Personendaten für einen aktiven Tab laden und noch keine da sind.
-  // Dies ist eine vereinfachte Logik. Man könnte es feingranularer pro Tab machen.
-  if ((isLoadingYearConfigs && yearConfigs.length === 0) ||
-      (activeTab === 'yearlyPersonData' && isLoadingYearlyPersonData && Object.keys(yearlyPersonData).length === 0 && personen.length > 0)) {
+  // Skeleton anzeigen, wenn Jahreskonfigurationen oder jahresspezifische Personendaten laden
+  if (isLoadingYearConfigs || isLoadingYearlyPersonData) {
     return <SettingsPageSkeleton />;
   }
 
