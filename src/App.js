@@ -38,7 +38,17 @@ function AppContent() { // Renamed from AppRoutes and restructured
       {isLoggedIn && <Header />} {/* Header is rendered conditionally here */}
       <main className="flex flex-col flex-grow bg-gray-100"> {/* Make main a flex container that arranges children vertically and grows */}
         <Routes>
-          <Route path="/login" element={<Suspense fallback={<RouteLoadingFallback />}><LoginForm /></Suspense>} />
+          <Route
+            path="/login"
+            element={
+              isLoggedIn ? (
+                <Navigate to="/" replace />
+              ) : (
+                <Suspense fallback={<RouteLoadingFallback />}>
+                  <LoginForm />
+                </Suspense>
+              )
+            } />
           <Route path="/auth/action" element={<Suspense fallback={<RouteLoadingFallback />}><ActionHandlerPage /></Suspense>} />
           <Route path="/datenschutz" element={<Suspense fallback={<RouteLoadingFallback />}><PrivacyPolicyPage /></Suspense>} />
           <Route path="/impressum" element={<Suspense fallback={<RouteLoadingFallback />}><ImprintPage /></Suspense>} />
