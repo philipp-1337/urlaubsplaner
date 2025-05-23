@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, useEffect } from 'react';
+import { createContext, useState, useContext, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from './AuthContext'; // Import useAuth
 
 // Erstellen des Kontexts
@@ -10,16 +10,20 @@ export function CalendarProvider({ children }) {
 
   // Define initial states for clarity and reset
   const initialAnsichtModus = 'liste';
-  const initialAusgewaehltePersonId = null;
-  const getInitialCurrentDate = () => new Date(); // Function to get fresh date
+  const initialAusgewaehltePersonId = null; // This is a primitive, stable by nature
+
+  // Memoize getInitialCurrentDate with useCallback
+  const getInitialCurrentDate = useCallback(() => new Date(), []); // No dependencies, created once
+
   const initialCurrentMonth = getInitialCurrentDate().getMonth();
   const initialCurrentYear = getInitialCurrentDate().getFullYear();
-  // const initialPersonen = []; // ESLint: no-unused-vars
-  // const initialResturlaub = {}; // ESLint: no-unused-vars
-  const initialTagDaten = {};
-  const initialGlobalTagDaten = {};
-  const initialEmploymentData = {};
-  const initialYearConfigurations = [];
+
+  // Memoize object/array initial values with useMemo
+  const initialTagDaten = useMemo(() => ({}), []);
+  const initialGlobalTagDaten = useMemo(() => ({}), []);
+  const initialEmploymentData = useMemo(() => ({}), []);
+  const initialYearConfigurations = useMemo(() => [], []);
+
   const initialLoginError = '';
 
   // Ansicht und Navigation 
@@ -61,12 +65,26 @@ export function CalendarProvider({ children }) {
       setCurrentYear(newCurrentDate.getFullYear());
       setLoginError(initialLoginError); // Kalenderspezifische Fehler zurücksetzen
 
-      // Die Daten-Collections (personen, tagDaten, globalTagDaten, resturlaub, 
-      // employmentData, yearConfigurations) werden bereits durch den useEffect 
-      // Hook in useFirestore zurückgesetzt, wenn isLoggedIn false wird.
-      // Daher müssen sie hier nicht erneut explizit zurückgesetzt werden.
+      // Explicitly reset all data collections to their initial states
+      // to prevent data leakage between user sessions.
+      setPersonen([]);
+      setTagDaten(initialTagDaten);
+      setGlobalTagDaten(initialGlobalTagDaten);
+      setResturlaub({});
+      setEmploymentData(initialEmploymentData);
+      setYearConfigurations(initialYearConfigurations);
     }
-  }, [currentUser]); // Nur von currentUser abhängig
+  }, [
+    currentUser,
+    initialAnsichtModus,
+    initialAusgewaehltePersonId,
+    getInitialCurrentDate, // This is a function, ensure it's stable or memoized if complex
+    initialLoginError,
+    initialTagDaten,
+    initialGlobalTagDaten,
+    initialEmploymentData,
+    initialYearConfigurations
+  ]); // Dependencies updated to satisfy exhaustive-deps
 
   // Monat wechseln
   const handleMonatWechsel = (richtung) => {

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { auth } from '../../firebase'; // Importiere Firebase auth Instanz
 import { sendPasswordResetEmail } from 'firebase/auth'; // Importiere die Funktion
+import { Loader2 } from 'lucide-react'; // Importiere Loader Icon
 
 function LoginForm() {
   const { 
@@ -18,11 +19,27 @@ function LoginForm() {
   const [isSendingResetEmail, setIsSendingResetEmail] = useState(false);
   const [resetMessage, setResetMessage] = useState('');
   const [resetError, setResetError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false); // Neuer Ladezustand für Login
+
+  const handleLogin = async () => {
+    if (isLoggingIn) return; // Verhindere mehrfache Submits
+    setIsLoggingIn(true);
+    // loginError wird von useAuth gesetzt, hier nicht explizit behandeln
+    try {
+      await login(); // Rufe die login Funktion aus dem AuthContext auf
+    } catch (error) {
+      // Dieser Catch-Block ist für unerwartete Fehler während des login()-Aufrufs selbst.
+      // loginError aus useAuth sollte die meisten Authentifizierungsfehler abdecken.
+      console.error("Ein unerwarteter Fehler ist beim Login aufgetreten:", error);
+    } finally {
+      setIsLoggingIn(false); // Ladezustand immer zurücksetzen
+    }
+  };
 
   // Submit mit Enter-Taste
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
-      login();
+      handleLogin(); // Rufe die neue handleLogin Funktion auf
     }
   };
 
@@ -75,8 +92,9 @@ function LoginForm() {
               <button
                 onClick={handleForgotPassword}
                 disabled={isSendingResetEmail}
-                className="w-full px-4 py-2 text-white bg-primary rounded-md hover:bg-accent hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:bg-gray-400"
+                className="w-full px-4 py-2 text-white bg-primary rounded-md hover:bg-accent hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:bg-gray-400 flex items-center justify-center"
               >
+                {isSendingResetEmail && <Loader2 size={18} className="mr-2 animate-spin" />}
                 {isSendingResetEmail ? 'Sende E-Mail...' : 'Passwort-Reset anfordern'}
               </button>
             </div>
@@ -142,10 +160,12 @@ function LoginForm() {
           </div>
           
           <button
-            onClick={login}
-            className="w-full px-4 py-2 text-white bg-primary rounded-md hover:bg-accent hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+            onClick={handleLogin}
+            disabled={isLoggingIn}
+            className="w-full px-4 py-2 text-white bg-primary rounded-md hover:bg-accent hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:bg-gray-400 flex items-center justify-center"
           >
-            Anmelden
+            {isLoggingIn && <Loader2 size={18} className="mr-2 animate-spin" />}
+            {isLoggingIn ? 'Melde an...' : 'Anmelden'}
           </button>
 
           <div className="mt-4 text-sm text-center">
