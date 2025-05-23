@@ -1,7 +1,8 @@
-import React, { Suspense, lazy } from 'react'; // Suspense und lazy importieren
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { Suspense, lazy, useEffect } from 'react'; // Suspense und lazy importieren
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CalendarProvider } from './context/CalendarContext';
+import { NavigationProvider, useNavigation } from './context/NavigationContext';
 
 // Import components
 import Header from './components/common/Header';
@@ -28,11 +29,22 @@ const SuspenseWrapper = ({ children }) => (
 
 function AppContent() { // Renamed from AppRoutes and restructured
   const { isLoggedIn, loadingAuth } = useAuth();
+  const location = useLocation();
+  const { stopNavigation, isNavigating } = useNavigation();
+
+  useEffect(() => {
+    stopNavigation(); // Beende Navigation, sobald sich die Route ändert
+  }, [location, stopNavigation]);
 
   if (loadingAuth) {
     // Adjusted to be flex-grow as parent div handles min-h-screen
     return <div className="flex-grow flex flex-col items-center justify-center bg-gray-100 text-xl text-gray-700">
       <FullPageLoader message="Authentifizierung wird geladen..." />    </div>;
+  }
+
+  // Zeige globalen Loader, wenn Navigation läuft
+  if (isNavigating) {
+    return <FullPageLoader message="Wechsel zur neuen Ansicht..." />;
   }
 
   return (
@@ -89,10 +101,12 @@ function App() {
     <Router>
       <AuthProvider>
         <CalendarProvider>
-          <div className="flex flex-col min-h-screen"> {/* Global wrapper for flex layout */}
-            <AppContent /> {/* Component containing Header (conditional) and Routes */}
-            <Footer />     {/* Global Footer */}
-          </div>
+          <NavigationProvider>
+            <div className="flex flex-col min-h-screen"> {/* Global wrapper for flex layout */}
+              <AppContent /> {/* Component containing Header (conditional) and Routes */}
+              <Footer />     {/* Global Footer */}
+            </div>
+          </NavigationProvider>
         </CalendarProvider>
       </AuthProvider>
     </Router>

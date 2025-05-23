@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCalendar } from '../../hooks/useCalendar'; // Korrigierter Importpfad
+import { useNavigation } from '../../context/NavigationContext';
 import { 
   Loader2, 
   LogOutIcon, 
@@ -13,6 +14,7 @@ import {
 function Header() {
   const { logout } = useAuth();
   const { setAnsichtModus, handleMonatWechsel, isLoadingData } = useCalendar(); // isLoadingData hier holen
+  const { startNavigation } = useNavigation();
   const navigate = useNavigate();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -25,6 +27,7 @@ function Header() {
   };
   
   const handleNavClick = (mode, direction = null) => {
+    startNavigation(); // Setze Navigationsstatus sofort
     setAnsichtModus(mode);
     if (direction) {
       handleMonatWechsel(direction);
