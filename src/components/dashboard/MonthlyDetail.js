@@ -12,6 +12,7 @@ import KebabMenu from '../common/KebabMenu';
 import InfoOverlayButton from '../common/InfoOverlayButton';
 import { triggerHorizontalScrollHint } from '../../services/scrollUtils';
 import ToggleSwitch from '../common/ToggleSwitch';
+import MonthlyDetailSkeleton from './MonthlyDetailSkeleton'; // Importiere die Skeleton-Komponente
 import { isScrollHintEnabled, setScrollHintEnabled } from '../../services/scrollEffectToggle';
 
 const MonthlyDetail = () => {
@@ -34,6 +35,7 @@ const MonthlyDetail = () => {
     getPersonJahresFortbildung,
     getPersonJahresInterneTeamtage,
     setAusgewaehltePersonId, // Need setter to sync context state
+    isLoadingData, // Hole isLoadingData aus useCalendar
     // getPersonJahresFeiertage
   } = useCalendar();
 
@@ -86,8 +88,9 @@ const MonthlyDetail = () => {
     }
   }, [scrollHintEnabled]);
 
-  if (!ausgewaehltePerson) {
-    return <Navigate to="/" replace />; // Redirect if person not found
+  // Zeige Skeleton, wenn Daten laden und ausgewählte Person oder Personenliste noch leer sind
+  if (isLoadingData && (!ausgewaehltePerson || personen.length === 0)) {
+    return <MonthlyDetailSkeleton />;
   }
 
   const handleExportCsv = () => {
@@ -115,6 +118,11 @@ const MonthlyDetail = () => {
 
     exportToCsv(`Jahresdetail_${ausgewaehltePerson.name}_${currentYear}.csv`, headers, dataRows);
   };
+
+  // Wenn nach dem Laden immer noch keine ausgewählte Person vorhanden ist (z.B. ungültige URL), dann weiterleiten
+  if (!ausgewaehltePerson) {
+    return <Navigate to="/" replace />; 
+  }
 
   return (
     <main className="container px-4 py-8 mx-auto">

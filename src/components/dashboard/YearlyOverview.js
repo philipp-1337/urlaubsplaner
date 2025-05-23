@@ -15,6 +15,7 @@ import KebabMenu from '../common/KebabMenu';
 import InfoOverlayButton from '../common/InfoOverlayButton';
 import { triggerHorizontalScrollHint } from '../../services/scrollUtils';
 import { isScrollHintEnabled, setScrollHintEnabled } from '../../services/scrollEffectToggle';
+import YearlyOverviewSkeleton from './YearlyOverviewSkeleton'; // Import Skeleton
 import ToggleSwitch from '../common/ToggleSwitch';
 
 const YearlyOverview = () => {
@@ -34,7 +35,8 @@ const YearlyOverview = () => {
     setAnsichtModus,
     getCurrentYearUrlaubsanspruch,
     getConfiguredYears, // Get the list of configured years
-    employmentData // Get employment data for badges
+    employmentData, // Get employment data for badges
+    isLoadingData // Get isLoadingData from useCalendar
   } = useCalendar();
 
   const configuredYears = getConfiguredYears();
@@ -129,6 +131,11 @@ const YearlyOverview = () => {
       }
     }, [scrollHintEnabled]);
   
+  // Zeige Skeleton, wenn Daten laden und Personenliste noch leer ist
+  if (isLoadingData && personen.length === 0) {
+    return <YearlyOverviewSkeleton />;
+  }
+
   return (
     <div className=""> {/* Removed min-h-screen bg-gray-100, parent main tag in App.js handles this */}
       <main className="container px-4 py-8 mx-auto">

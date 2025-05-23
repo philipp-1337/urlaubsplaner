@@ -8,6 +8,7 @@ import YearConfigurationSection from './YearConfigurationSection'; // Import Yea
 import PersonManagementSection from './PersonManagementSection'; // Import PersonManagementSection
 import YearlyPersonDataSection from './YearlyPersonDataSection'; // Import YearlyPersonDataSection
 import UserDataManagementSection from './UserDataManagementSection'; // Import der neuen Komponente
+import SettingsPageSkeleton from './SettingsPageSkeleton'; // Import Skeleton
 // GlobalDaySettingsSection wird jetzt innerhalb von YearlyPersonDataSection gerendert
 
 const SettingsPage = () => {
@@ -576,6 +577,14 @@ const SettingsPage = () => {
         return null;
     }
   };
+
+  // Skeleton anzeigen, wenn Jahreskonfigurationen initial laden ODER
+  // wenn jahresspezifische Personendaten für einen aktiven Tab laden und noch keine da sind.
+  // Dies ist eine vereinfachte Logik. Man könnte es feingranularer pro Tab machen.
+  if ((isLoadingYearConfigs && yearConfigs.length === 0) ||
+      (activeTab === 'yearlyPersonData' && isLoadingYearlyPersonData && Object.keys(yearlyPersonData).length === 0 && personen.length > 0)) {
+    return <SettingsPageSkeleton />;
+  }
 
   return (
     <main className="container px-4 py-8 mx-auto">

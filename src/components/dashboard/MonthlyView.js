@@ -15,6 +15,7 @@ import InfoOverlayButton from '../common/InfoOverlayButton';
 import KebabMenu from '../common/KebabMenu';
 import { triggerHorizontalScrollHint } from '../../services/scrollUtils';
 import ToggleSwitch from '../common/ToggleSwitch';
+import MonthlyViewSkeleton from './MonthlyViewSkeleton'; // Import Skeleton
 import { isScrollHintEnabled, setScrollHintEnabled } from '../../services/scrollEffectToggle';
 
 const MonthlyView = () => {
@@ -40,7 +41,8 @@ const MonthlyView = () => {
     getGesamtFortbildung,
     getGesamtInterneTeamtage,
     getGesamtFeiertage,
-    setAusgewaehltePersonId,
+    setAusgewaehltePersonId, // Make sure this is provided by useCalendar if used
+    isLoadingData, // Get isLoadingData from useCalendar
     setAnsichtModus
   } = useCalendar();
 
@@ -181,6 +183,11 @@ const MonthlyView = () => {
 
     exportToCsv(`Monatsansicht_${getMonatsName(currentMonth)}_${currentYear}.csv`, headers, dataRows);
   };
+
+  // Zeige Skeleton, wenn Daten laden und Personenliste noch leer ist
+  if (isLoadingData && personen.length === 0) {
+    return <MonthlyViewSkeleton />;
+  }
 
   return (
     <div className=""> {/* Removed min-h-screen bg-gray-100, parent main tag in App.js handles this */}
