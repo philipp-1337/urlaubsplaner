@@ -184,8 +184,8 @@ const MonthlyView = () => {
     exportToCsv(`Monatsansicht_${getMonatsName(currentMonth)}_${currentYear}.csv`, headers, dataRows);
   };
 
-  // Zeige Skeleton, wenn Daten laden und Personenliste noch leer ist
-  if (isLoadingData && personen.length === 0) {
+  // Zeige Skeleton, wenn Daten laden
+  if (isLoadingData) {
     return <MonthlyViewSkeleton />;
   }
 
