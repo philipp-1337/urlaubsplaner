@@ -1,27 +1,36 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react'; // Suspense und lazy importieren
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CalendarProvider } from './context/CalendarContext';
 
 // Import components
-import LoginForm from './components/auth/LoginForm';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer'; // Import Footer
-import MonthlyView from './components/dashboard/MonthlyView';
-import CalendarView from './components/calendar/CalendarView';
-import YearlyOverview from './components/dashboard/YearlyOverview';
-import MonthlyDetail from './components/dashboard/MonthlyDetail';
-import SettingsPage from './components/settings/SettingsPage';
-import ActionHandlerPage from './components/auth/ActionHandlerPage'; // Import der neuen Seite
-import PrivacyPolicyPage from './components/legal/PrivacyPolicyPage'; // Import PrivacyPolicyPage
-import ImprintPage from './components/legal/ImprintPage'; // Import ImprintPage
+
+// Lazy load route components
+const LoginForm = lazy(() => import('./components/auth/LoginForm'));
+const ActionHandlerPage = lazy(() => import('./components/auth/ActionHandlerPage'));
+const PrivacyPolicyPage = lazy(() => import('./components/legal/PrivacyPolicyPage'));
+const ImprintPage = lazy(() => import('./components/legal/ImprintPage'));
+const MonthlyView = lazy(() => import('./components/dashboard/MonthlyView'));
+const CalendarView = lazy(() => import('./components/calendar/CalendarView'));
+const YearlyOverview = lazy(() => import('./components/dashboard/YearlyOverview'));
+const MonthlyDetail = lazy(() => import('./components/dashboard/MonthlyDetail'));
+const SettingsPage = lazy(() => import('./components/settings/SettingsPage'));
+
+// Fallback-Komponente für Suspense
+const RouteLoadingFallback = () => (
+  <div className="flex-grow flex items-center justify-center bg-gray-100 text-xl">
+    Lade Ansicht...
+  </div>
+);
 
 function AppContent() { // Renamed from AppRoutes and restructured
   const { isLoggedIn, loadingAuth } = useAuth();
 
   if (loadingAuth) {
     // Adjusted to be flex-grow as parent div handles min-h-screen
-    return <div className="flex-grow flex items-center justify-center bg-gray-100 text-xl">Authentifizierung wird geladen...</div>;
+    return <div className="flex-grow flex items-center justify-center bg-gray-100 text-xl">Authentifizierung wird geladen...</div>; // Dieser Ladeindikator bleibt für die Auth-Prüfung
   }
 
   return (
@@ -29,34 +38,33 @@ function AppContent() { // Renamed from AppRoutes and restructured
       {isLoggedIn && <Header />} {/* Header is rendered conditionally here */}
       <main className="flex flex-col flex-grow bg-gray-100"> {/* Make main a flex container that arranges children vertically and grows */}
         <Routes>
-          {/* Public routes accessible always */}
-          <Route path="/login" element={isLoggedIn ? <Navigate to="/" replace /> : <LoginForm />} />
-          <Route path="/auth/action" element={<ActionHandlerPage />} />
-          <Route path="/datenschutz" element={<PrivacyPolicyPage />} />
-          <Route path="/impressum" element={<ImprintPage />} />
+          <Route path="/login" element={<Suspense fallback={<RouteLoadingFallback />}><LoginForm /></Suspense>} />
+          <Route path="/auth/action" element={<Suspense fallback={<RouteLoadingFallback />}><ActionHandlerPage /></Suspense>} />
+          <Route path="/datenschutz" element={<Suspense fallback={<RouteLoadingFallback />}><PrivacyPolicyPage /></Suspense>} />
+          <Route path="/impressum" element={<Suspense fallback={<RouteLoadingFallback />}><ImprintPage /></Suspense>} />
 
           {/* Protected routes logic */}
           {isLoggedIn ? (
             <>
-              {/* 
-                The /* catch-all for logged-in users is handled by nesting these routes.
-                If a logged-in user tries to access a non-defined path, 
-                the outer <Route path="/*" element={...}> below will redirect to /login if not caught here.
-                So, we add a specific catch-all for logged-in users.
-              */}
-              <Route path="/" element={<MonthlyView />} />
-              <Route path="/calendar/:personId" element={<CalendarView />} />
-              <Route path="/yearly-overview" element={<YearlyOverview />} />
-              <Route path="/monthly-detail/:personId" element={<MonthlyDetail />} />
-              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/" element={<Suspense fallback={<RouteLoadingFallback />}><MonthlyView /></Suspense>} />
+              <Route path="/calendar/:personId" element={<Suspense fallback={<RouteLoadingFallback />}><CalendarView /></Suspense>} />
+              <Route path="/yearly-overview" element={<Suspense fallback={<RouteLoadingFallback />}><YearlyOverview /></Suspense>} />
+              <Route path="/monthly-detail/:personId" element={<Suspense fallback={<RouteLoadingFallback />}><MonthlyDetail /></Suspense>} />
+              <Route path="/settings" element={<Suspense fallback={<RouteLoadingFallback />}><SettingsPage /></Suspense>} />
               <Route path="*" element={<Navigate to="/" replace />} /> {/* Catch-all for logged-in users */}
             </>
           ) : (
             // If not logged in, any path not matching /login, /auth/action, /datenschutz, /impressum
             // will lead to a redirect to /login. We need a catch-all for this.
-            // This is implicitly handled by the outer Route path="/*" below if no other match.
-            // To be explicit for non-logged-in users trying to access protected paths:
-            <Route path="*" element={<Navigate to="/login" replace />} />
+            // For non-logged-in users, we still want to lazy load the login form if they hit a protected route.
+            // The Navigate component itself doesn't need Suspense, but the target (LoginForm) does.
+            // If we redirect to /login, the /login route's Suspense will handle it.
+            <Route
+              path="*"
+              element={
+                <Navigate to="/login" replace />
+              }
+            />
           )}
         </Routes>
       </main>
