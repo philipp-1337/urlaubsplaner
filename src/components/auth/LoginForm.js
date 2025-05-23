@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { auth } from '../../firebase'; // Importiere Firebase auth Instanz
 import { sendPasswordResetEmail } from 'firebase/auth'; // Importiere die Funktion
 import { Loader2 } from 'lucide-react'; // Importiere Loader Icon
+import { toast } from 'sonner';
 
 function LoginForm() {
   const { 
@@ -24,15 +25,13 @@ function LoginForm() {
   const handleLogin = async () => {
     if (isLoggingIn) return; // Verhindere mehrfache Submits
     setIsLoggingIn(true);
-    // loginError wird von useAuth gesetzt, hier nicht explizit behandeln
     try {
-      await login(); // Rufe die login Funktion aus dem AuthContext auf
+      await login();
     } catch (error) {
-      // Dieser Catch-Block ist für unerwartete Fehler während des login()-Aufrufs selbst.
-      // loginError aus useAuth sollte die meisten Authentifizierungsfehler abdecken.
       console.error("Ein unerwarteter Fehler ist beim Login aufgetreten:", error);
+      toast.error("Ein unerwarteter Fehler ist beim Login aufgetreten.");
     } finally {
-      setIsLoggingIn(false); // Ladezustand immer zurücksetzen
+      setIsLoggingIn(false);
     }
   };
 
@@ -44,25 +43,32 @@ function LoginForm() {
   };
 
   const handleForgotPassword = async () => {
-    if (!passwordResetEmail) { // E-Mail aus dem Reset-Formular verwenden
-      setResetError("Bitte geben Sie Ihre E-Mail-Adresse ein.");
-      setResetMessage('');
+    if (!passwordResetEmail) {
+      setResetError("");
+      setResetMessage("");
+      toast.error("Bitte geben Sie Ihre E-Mail-Adresse ein.");
       return;
     }
     setIsSendingResetEmail(true);
     setResetMessage('');
     setResetError('');
     try {
-      await sendPasswordResetEmail(auth, passwordResetEmail); // E-Mail aus dem Reset-Formular verwenden
+      await sendPasswordResetEmail(auth, passwordResetEmail);
       setResetMessage("Eine E-Mail zum Zurücksetzen des Passworts wurde an Ihre Adresse gesendet. Bitte überprüfen Sie Ihr Postfach.");
+      toast.success("E-Mail zum Zurücksetzen des Passworts gesendet.");
     } catch (err) {
       console.error("Error sending password reset email:", err);
-      // Hier könntest du spezifischere Fehlermeldungen basierend auf err.code hinzufügen
-      setResetError("Fehler beim Senden der Passwort-Reset-E-Mail. Bitte überprüfen Sie die E-Mail-Adresse oder versuchen Sie es später erneut.");
+      setResetError("");
+      toast.error("Fehler beim Senden der Passwort-Reset-E-Mail. Bitte überprüfen Sie die E-Mail-Adresse oder versuchen Sie es später erneut.");
     } finally {
       setIsSendingResetEmail(false);
     }
   };
+
+  // Zeige Toast nur, wenn sich loginError ändert und nicht im Render
+  React.useEffect(() => {
+    if (loginError) toast.error(loginError);
+  }, [loginError]);
 
   if (showPasswordReset) {
     return (
@@ -123,13 +129,6 @@ function LoginForm() {
     <div className="flex flex-col items-center justify-center flex-grow py-12"> {/* Added flex-grow */}
       <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md"> {/* bg-white is fine here for the card */}
         <h1 className="mb-6 text-2xl font-bold text-center text-primary">Urlaubsplaner Login</h1>
-        
-        {loginError && (
-          <div className="p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">
-            {loginError}
-          </div>
-        )}
-        
         <div className="space-y-6">
           <div>
             <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-700">

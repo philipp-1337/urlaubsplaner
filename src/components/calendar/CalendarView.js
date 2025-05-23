@@ -2,7 +2,6 @@ import { useNavigate, useParams, Navigate } from 'react-router-dom';
 import { useCalendar } from '../../hooks/useCalendar';
 import { getMonatsName, getWochentagName } from '../../services/dateUtils';
 import DayCell from './DayCell';
-import ErrorMessage from '../common/ErrorMessage';
 import { 
   ArrowLeftIcon, 
   PenOffIcon,
@@ -12,6 +11,7 @@ import {
 import { useEffect, useState, useRef } from 'react';
 import InfoOverlayButton from '../common/InfoOverlayButton';
 import KebabMenu from '../common/KebabMenu';
+import { toast } from 'sonner';
 
 const CalendarView = ({ navigateToView }) => {
   const navigate = useNavigate();
@@ -118,6 +118,10 @@ const CalendarView = ({ navigateToView }) => {
     } 
   };
 
+  useEffect(() => {
+    if (loginError) toast.error(loginError);
+  }, [loginError]);
+
   if (!ausgewaehltePerson) {
     return <Navigate to="/" replace />; // Redirect if person not found
   };
@@ -128,7 +132,6 @@ const CalendarView = ({ navigateToView }) => {
     <div className=""> {/* Removed min-h-screen bg-gray-100, parent main tag in App.js handles this */}
       
       <main className="container px-4 py-8 mx-auto">
-        <ErrorMessage message={loginError} />
         
         <div className="p-6 mb-6 bg-white rounded-lg shadow-md">
           <div className="relative mb-6 flex flex-row items-center justify-between">

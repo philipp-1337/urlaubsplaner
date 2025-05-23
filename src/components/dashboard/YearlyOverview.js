@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import { useCalendar } from '../../hooks/useCalendar';
-import ErrorMessage from '../common/ErrorMessage';
 import {  
   DownloadIcon, 
   ArrowLeftIcon, 
@@ -17,6 +16,7 @@ import { triggerHorizontalScrollHint } from '../../services/scrollUtils';
 import { isScrollHintEnabled, setScrollHintEnabled } from '../../services/scrollEffectToggle';
 import YearlyOverviewSkeleton from './YearlyOverviewSkeleton'; // Import Skeleton
 import ToggleSwitch from '../common/ToggleSwitch';
+import { toast } from 'sonner';
 
 const YearlyOverview = () => {
   const navigate = useNavigate();
@@ -64,6 +64,10 @@ const YearlyOverview = () => {
       document.removeEventListener('touchstart', handleClickOutside);
     };
   }, [menuOpen]);
+
+  useEffect(() => {
+    if (loginError) toast.error(loginError);
+  }, [loginError]);
 
   const handleYearChange = (direction) => {
     const newYear = direction === 'next' ? currentYear + 1 : currentYear - 1;
@@ -139,7 +143,6 @@ const YearlyOverview = () => {
   return (
     <div className=""> {/* Removed min-h-screen bg-gray-100, parent main tag in App.js handles this */}
       <main className="container px-4 py-8 mx-auto">
-        {loginError && <ErrorMessage message={loginError} />}
         <div className="p-6 bg-white rounded-lg shadow-md">
           <div className="relative mb-6 flex flex-row items-center justify-between">
             <div className="flex items-center">

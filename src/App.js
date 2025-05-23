@@ -8,6 +8,7 @@ import { NavigationProvider, useNavigation } from './context/NavigationContext';
 import Header from './components/common/Header';
 import FullPageLoader from './components/common/FullPageLoader'; // Importiere FullPageLoader
 import Footer from './components/common/Footer'; // Import Footer
+import { Toaster } from './components/common/Toaster';
 
 // Lazy load route components
 const LoginForm = lazy(() => import('./components/auth/LoginForm'));
@@ -105,6 +106,7 @@ function App() {
             <div className="flex flex-col min-h-screen"> {/* Global wrapper for flex layout */}
               <AppContent /> {/* Component containing Header (conditional) and Routes */}
               <Footer />     {/* Global Footer */}
+              <Toaster position="top-center" richColors />
             </div>
           </NavigationProvider>
         </CalendarProvider>

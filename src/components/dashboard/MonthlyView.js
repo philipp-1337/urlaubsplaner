@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useCalendar } from '../../hooks/useCalendar';
 import { getMonatsName, getWochentagName } from '../../services/dateUtils';
-import ErrorMessage from '../common/ErrorMessage';
 import { 
   ArrowLeftIcon, 
   CornerDownRightIcon, 
@@ -17,6 +16,7 @@ import { triggerHorizontalScrollHint } from '../../services/scrollUtils';
 import ToggleSwitch from '../common/ToggleSwitch';
 import MonthlyViewSkeleton from './MonthlyViewSkeleton'; // Import Skeleton
 import { isScrollHintEnabled, setScrollHintEnabled } from '../../services/scrollEffectToggle';
+import { toast } from 'sonner';
 
 const MonthlyView = () => {
   const navigate = useNavigate();
@@ -70,6 +70,10 @@ const MonthlyView = () => {
       document.removeEventListener('touchstart', handleClickOutside);
     };
   }, [menuOpen]);
+
+  useEffect(() => {
+    if (loginError) toast.error(loginError);
+  }, [loginError]);
 
   // Simulate horizontal scroll to hint scrollability on small screens
   useEffect(() => {
@@ -192,7 +196,6 @@ const MonthlyView = () => {
   return (
     <div className=""> {/* Removed min-h-screen bg-gray-100, parent main tag in App.js handles this */}
       <main className="container px-4 py-8 mx-auto">
-        <ErrorMessage message={loginError} />
         <div className="p-6 bg-white rounded-lg shadow-md">
           <div className="relative mb-6 flex flex-row items-center justify-between">
             <div className="flex items-center">

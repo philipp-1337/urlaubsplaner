@@ -1,5 +1,4 @@
 import { useNavigate, useParams, Navigate } from 'react-router-dom';
-import ErrorMessage from '../common/ErrorMessage';
 import { useCalendar } from '../../hooks/useCalendar';
 import { 
   CornerDownRightIcon, 
@@ -14,6 +13,7 @@ import { triggerHorizontalScrollHint } from '../../services/scrollUtils';
 import ToggleSwitch from '../common/ToggleSwitch';
 import MonthlyDetailSkeleton from './MonthlyDetailSkeleton'; // Importiere die Skeleton-Komponente
 import { isScrollHintEnabled, setScrollHintEnabled } from '../../services/scrollEffectToggle';
+import { toast } from 'sonner';
 
 const MonthlyDetail = () => {
   const navigate = useNavigate();
@@ -88,6 +88,10 @@ const MonthlyDetail = () => {
     }
   }, [scrollHintEnabled]);
 
+  useEffect(() => {
+    if (loginError) toast.error(loginError);
+  }, [loginError]);
+
   // Zeige Skeleton, wenn Daten laden
   if (isLoadingData) {
     return <MonthlyDetailSkeleton />;
@@ -126,7 +130,6 @@ const MonthlyDetail = () => {
 
   return (
     <main className="container px-4 py-8 mx-auto">
-      {loginError && <ErrorMessage message={loginError} />}
       <div className="p-6 bg-white rounded-lg shadow-md">
         <div className="relative mb-6 flex flex-row items-center justify-between">
           <div className="flex items-center">
