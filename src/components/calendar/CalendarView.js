@@ -76,48 +76,6 @@ const CalendarView = ({ navigateToView }) => {
   // to person-specific data. The handleDayCellClick below uses getTagStatus for its logic.
   // const tagDaten = rawTagDaten || {}; // This line is fine, but not directly used by the corrected click handler
   
-  const handleDayCellClick = (tagObject) => {
-    if (!tagObject.istWochenende) {
-      const personIdStr = String(ausgewaehltePersonId);
-      const currentStatus = getTagStatus(personIdStr, tagObject.tag, currentMonth, currentYear);
-
-      // Check if there's an explicit person-specific entry for this day
-      const personSpecificKey = `${personIdStr}-${currentYear}-${currentMonth}-${tagObject.tag}`;
-      const hasPersonSpecificEntry = tagDaten.hasOwnProperty(personSpecificKey);
-
-      let neuerStatus = null;
-
-      if (currentStatus === null) {
-        neuerStatus = 'urlaub';
-      } else if (currentStatus === 'urlaub') {
-        neuerStatus = 'durchfuehrung';
-      } else if (currentStatus === 'durchfuehrung') {
-        neuerStatus = 'fortbildung';
-      } else if (currentStatus === 'fortbildung') {
-        // If it was a global 'fortbildung' (unlikely, but for completeness) or no specific entry, override with 'interne teamtage'
-        // If it was person-specific 'fortbildung', cycle to 'interne teamtage'
-        neuerStatus = 'interne teamtage'; 
-      } else if (currentStatus === 'interne teamtage') {
-        // If it was a person-specific 'interne teamtage', next is 'feiertag' (person-specific)
-        // If it was a global 'interne teamtage', next should be 'urlaub' (person-specific override)
-        if (hasPersonSpecificEntry && tagDaten[personSpecificKey] === 'interne teamtage') {
-          neuerStatus = 'feiertag'; // Cycle to person-specific feiertag
-        } else { // Global 'interne teamtage' or no specific entry, start override with 'urlaub'
-          neuerStatus = 'urlaub';
-        }
-      } else if (currentStatus === 'feiertag') {
-        // If it was a person-specific 'feiertag', next is to clear it (null)
-        // If it was a global 'feiertag', next should be 'urlaub' (person-specific override)
-        if (hasPersonSpecificEntry && tagDaten[personSpecificKey] === 'feiertag') {
-          neuerStatus = null; // Clear person-specific feiertag
-        } else { // Global 'feiertag' or no specific entry, start override with 'urlaub'
-          neuerStatus = 'urlaub';
-        }
-      }
-      setTagStatus(personIdStr, tagObject.tag, neuerStatus, currentMonth, currentYear);
-    } 
-  };
-
   useEffect(() => {
     if (loginError) toast.error(loginError);
   }, [loginError]);
