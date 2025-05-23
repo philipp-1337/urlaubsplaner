@@ -1,6 +1,6 @@
-import React from 'react';
+import React from 'react'; // Import React
 
-const DayCell = ({ 
+const DayCell = React.memo(({ // Wrap with React.memo
   day, 
   status, 
   isWeekend, 
@@ -73,6 +73,6 @@ const DayCell = ({
       )}
     </div>
   );
-};
+}); // End React.memo
 
 export default DayCell;

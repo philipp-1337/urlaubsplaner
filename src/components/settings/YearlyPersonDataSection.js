@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react'; // useMemo importieren
 import LoadingIndicator from '../common/LoadingIndicator';
 import ToggleSwitch from '../common/ToggleSwitch';
 import { Save, RotateCcw, Loader2 } from 'lucide-react';
@@ -25,6 +25,53 @@ const YearlyPersonDataSection = ({
   onSetHolidaysImportedStatus, // Neuer Prop
   getMonatsName,
 }) => {
+
+  // Memoize die Berechnung, ob sich die jährlichen Daten für jede Person geändert haben
+  const personDataChangeStatus = useMemo(() => {
+    const status = {};
+    if (!personen || personen.length === 0) {
+        return status; // Frühzeitiger Ausstieg, wenn keine Personen vorhanden sind
+    }
+    personen.forEach(person => {
+      // getInitialDataForPerson ist eine Prop, deren Ergebnis von initialYearlyPersonData (auch eine Prop) abhängt
+      const initialComparableData = getInitialDataForPerson(person.id);
+      // yearlyPersonData ist eine Prop (Zustand von der Elternkomponente)
+      const currentDataFromState = yearlyPersonData[person.id] || {};
+
+      // Konstruiere eine vergleichbare Darstellung der aktuellen Daten im Formular
+      const currentComparableData = {
+          resturlaub: currentDataFromState.resturlaub ?? '',
+          employmentType: currentDataFromState.employmentType ?? 'full-time',
+          employmentPercentage: currentDataFromState.employmentPercentage,
+          daysPerWeek: currentDataFromState.daysPerWeek ?? (currentDataFromState.employmentType === 'part-time' ? '' : null)
+      };
+
+      if (currentComparableData.employmentType === 'full-time') {
+          currentComparableData.employmentPercentage = 100;
+          currentComparableData.daysPerWeek = null;
+      } else { // Teilzeit
+          if (currentComparableData.employmentPercentage === undefined) {
+            currentComparableData.employmentPercentage = '';
+          }
+      }
+
+      let hasChanged = false;
+      if (String(currentComparableData.resturlaub) !== String(initialComparableData.resturlaub)) {
+        hasChanged = true;
+      }
+      if (!hasChanged && currentComparableData.employmentType !== initialComparableData.employmentType) {
+        hasChanged = true;
+      }
+      if (!hasChanged && String(currentComparableData.employmentPercentage) !== String(initialComparableData.employmentPercentage)) {
+        hasChanged = true;
+      }
+      if (!hasChanged && String(currentComparableData.daysPerWeek) !== String(initialComparableData.daysPerWeek)) {
+          hasChanged = true;
+      }
+      status[person.id] = hasChanged;
+    });
+    return status;
+  }, [personen, yearlyPersonData, getInitialDataForPerson]); // initialYearlyPersonData entfernt
 
   return (
     <section className="p-6 mb-8 bg-white rounded-lg shadow-md">
@@ -54,52 +101,11 @@ const YearlyPersonDataSection = ({
       {/* Conditional rendering of yearly person data management UI */}
       {isLoadingYearlyPersonData ? (
         <LoadingIndicator message={`Lade Daten für Jahr ${selectedConfigYear}...`} />
-      ) : yearConfigs.length > 0 && selectedConfigYear && personen.length > 0 ? (
+) : yearConfigs.length > 0 && selectedConfigYear && personen.length > 0 ? (
         <div className="space-y-4">
           {personen.map(person => {
-            const initialComparableData = getInitialDataForPerson(person.id);
-            const currentDataFromState = yearlyPersonData[person.id] || {}; // Ensure object
-
-            // Construct a comparable representation of the current data in the form
-            const currentComparableData = {
-                resturlaub: currentDataFromState.resturlaub ?? '',
-                employmentType: currentDataFromState.employmentType ?? 'full-time',
-                employmentPercentage: currentDataFromState.employmentPercentage,
-                daysPerWeek: currentDataFromState.daysPerWeek ?? (currentDataFromState.employmentType === 'part-time' ? '' : null)
-            };
-
-            if (currentComparableData.employmentType === 'full-time') {
-                currentComparableData.employmentPercentage = 100;
-                currentComparableData.daysPerWeek = null;
-            } else { // part-time
-                // If type is part-time, and percentage is undefined, treat as empty string for comparison
-                if (currentComparableData.employmentPercentage === undefined) {
-                  currentComparableData.employmentPercentage = '';
-                }
-                // daysPerWeek is already handled by the ?? in its construction for currentComparableData
-            }
-
-            let hasYearlyDataChanged = false;
-            // Compare resturlaub
-            if (String(currentComparableData.resturlaub) !== String(initialComparableData.resturlaub)) {
-              hasYearlyDataChanged = true;
-            }
-            // Compare employmentType
-            if (!hasYearlyDataChanged && currentComparableData.employmentType !== initialComparableData.employmentType) {
-              hasYearlyDataChanged = true;
-            }
-            if (!hasYearlyDataChanged && String(currentComparableData.employmentPercentage) !== String(initialComparableData.employmentPercentage)) {
-              hasYearlyDataChanged = true;
-            }
-            // Compare daysPerWeek
-            if (!hasYearlyDataChanged) {
-              const initialDays = initialComparableData.daysPerWeek;
-              const currentDays = currentComparableData.daysPerWeek;
-              // String comparison handles numbers, empty strings, and null consistently for this check
-              if (String(currentDays) !== String(initialDays)) {
-                  hasYearlyDataChanged = true;
-              }
-            }
+            // Verwende den memoisierten Status
+            const hasYearlyDataChanged = personDataChangeStatus[person.id] ?? false;
 
             const isSavingYearly = yearlyDataSavingStates[person.id];
 
