@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'; // useMemo importieren
-import LoadingIndicator from '../common/LoadingIndicator';
 import ToggleSwitch from '../common/ToggleSwitch';
 import { Save, RotateCcw, Loader2 } from 'lucide-react';
+import FullPageLoader from '../common/FullPageLoader'; // Importiere FullPageLoader
 import GlobalDaySettingsSection from './GlobalDaySettingsSection'; // Import GlobalDaySettingsSection
 
 const YearlyPersonDataSection = ({
@@ -100,7 +100,7 @@ const YearlyPersonDataSection = ({
 
       {/* Conditional rendering of yearly person data management UI */}
       {isLoadingYearlyPersonData ? (
-        <LoadingIndicator message={`Lade Daten für Jahr ${selectedConfigYear}...`} />
+        <FullPageLoader message={`Lade Daten für Jahr ${selectedConfigYear}...`} />
 ) : yearConfigs.length > 0 && selectedConfigYear && personen.length > 0 ? (
         <div className="space-y-4">
           {personen.map(person => {

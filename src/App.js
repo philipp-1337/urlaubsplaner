@@ -2,10 +2,10 @@ import React, { Suspense, lazy } from 'react'; // Suspense und lazy importieren
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CalendarProvider } from './context/CalendarContext';
-import { Loader2 } from 'lucide-react'; // Importiere Loader2
 
 // Import components
 import Header from './components/common/Header';
+import FullPageLoader from './components/common/FullPageLoader'; // Importiere FullPageLoader
 import Footer from './components/common/Footer'; // Import Footer
 
 // Lazy load route components
@@ -19,12 +19,11 @@ const YearlyOverview = lazy(() => import('./components/dashboard/YearlyOverview'
 const MonthlyDetail = lazy(() => import('./components/dashboard/MonthlyDetail'));
 const SettingsPage = lazy(() => import('./components/settings/SettingsPage'));
 
-// Fallback-Komponente für Suspense
-const RouteLoadingFallback = () => (
-  <div className="flex-grow flex flex-col items-center justify-center bg-gray-100 text-xl text-gray-700">
-    <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
-    Lade Ansicht...
-  </div>
+// Wrapper für Suspense mit standardisiertem Fallback
+const SuspenseWrapper = ({ children }) => (
+  <Suspense fallback={<FullPageLoader message="Lade Ansicht..." />}>
+    {children}
+  </Suspense>
 );
 
 function AppContent() { // Renamed from AppRoutes and restructured
@@ -33,9 +32,7 @@ function AppContent() { // Renamed from AppRoutes and restructured
   if (loadingAuth) {
     // Adjusted to be flex-grow as parent div handles min-h-screen
     return <div className="flex-grow flex flex-col items-center justify-center bg-gray-100 text-xl text-gray-700">
-      <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
-      Authentifizierung wird geladen...
-    </div>;
+      <FullPageLoader message="Authentifizierung wird geladen..." />    </div>;
   }
 
   return (
@@ -49,23 +46,23 @@ function AppContent() { // Renamed from AppRoutes and restructured
               isLoggedIn ? (
                 <Navigate to="/" replace />
               ) : (
-                <Suspense fallback={<RouteLoadingFallback />}>
+                <SuspenseWrapper>
                   <LoginForm />
-                </Suspense>
+                </SuspenseWrapper>
               )
             } />
-          <Route path="/auth/action" element={<Suspense fallback={<RouteLoadingFallback />}><ActionHandlerPage /></Suspense>} />
-          <Route path="/datenschutz" element={<Suspense fallback={<RouteLoadingFallback />}><PrivacyPolicyPage /></Suspense>} />
-          <Route path="/impressum" element={<Suspense fallback={<RouteLoadingFallback />}><ImprintPage /></Suspense>} />
+          <Route path="/auth/action" element={<SuspenseWrapper><ActionHandlerPage /></SuspenseWrapper>} />
+          <Route path="/datenschutz" element={<SuspenseWrapper><PrivacyPolicyPage /></SuspenseWrapper>} />
+          <Route path="/impressum" element={<SuspenseWrapper><ImprintPage /></SuspenseWrapper>} />
 
           {/* Protected routes logic */}
           {isLoggedIn ? (
             <>
-              <Route path="/" element={<Suspense fallback={<RouteLoadingFallback />}><MonthlyView /></Suspense>} />
-              <Route path="/calendar/:personId" element={<Suspense fallback={<RouteLoadingFallback />}><CalendarView /></Suspense>} />
-              <Route path="/yearly-overview" element={<Suspense fallback={<RouteLoadingFallback />}><YearlyOverview /></Suspense>} />
-              <Route path="/monthly-detail/:personId" element={<Suspense fallback={<RouteLoadingFallback />}><MonthlyDetail /></Suspense>} />
-              <Route path="/settings" element={<Suspense fallback={<RouteLoadingFallback />}><SettingsPage /></Suspense>} />
+              <Route path="/" element={<SuspenseWrapper><MonthlyView /></SuspenseWrapper>} />
+              <Route path="/calendar/:personId" element={<SuspenseWrapper><CalendarView /></SuspenseWrapper>} />
+              <Route path="/yearly-overview" element={<SuspenseWrapper><YearlyOverview /></SuspenseWrapper>} />
+              <Route path="/monthly-detail/:personId" element={<SuspenseWrapper><MonthlyDetail /></SuspenseWrapper>} />
+              <Route path="/settings" element={<SuspenseWrapper><SettingsPage /></SuspenseWrapper>} />
               <Route path="*" element={<Navigate to="/" replace />} /> {/* Catch-all for logged-in users */}
             </>
           ) : (
