@@ -2,6 +2,14 @@ const { GenerateSW } = require('workbox-webpack-plugin');
 const path = require('path');
 
 module.exports = {
+  style: {
+    postcss: {
+      mode: 'override',
+      plugins: [
+        require('@tailwindcss/postcss'),
+      ],
+    },
+  },
   webpack: {
     // alias: {
     //   "@utils": path.resolve(__dirname, "src/utils"),
