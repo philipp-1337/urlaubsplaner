@@ -194,21 +194,21 @@ const YearlyOverview = () => {
           <table className="w-full border-separate border-spacing-0">
             <thead>
               <tr className="bg-gray-100">
-                <th rowSpan="2" className="sticky left-0 z-10 p-3 text-left bg-gray-100 border-t border-l border-r">Person</th>
-                <th colSpan="5" className="p-3 text-center border-t">Urlaub</th>
-                <th colSpan="3" className="p-3 text-center border-t border-l">Sonstiges</th>
-                <th rowSpan="2" className="left-0 z-10 p-3 text-left bg-gray-100 border-t border-l border-r text-center">Aktionen</th>
+                <th rowSpan="2" className="sticky left-0 z-10 p-3 text-left bg-gray-100 border-t border-l border-r border-gray-300">Person</th>
+                <th colSpan="5" className="p-3 text-center border-t border-gray-300">Urlaub</th>
+                <th colSpan="3" className="p-3 text-center border-t border-l border-gray-300">Sonstiges</th>
+                <th rowSpan="2" className="left-0 z-10 p-3 text-left bg-gray-100 border-t border-l border-r border-gray-300 text-center">Aktionen</th>
               </tr>
               <tr className="bg-gray-100">
-                <th className="p-3 text-center border-t">Übertrag</th>
-                <th className="p-3 text-center border-t border-l">Anspruch</th>
-                <th className="p-3 text-center border-t border-l">Gesamt</th>
-                <th className="p-3 text-center border-t border-l">Verplant</th>
-                <th className="p-3 text-center border-t border-l">Verbleibend</th>
-                <th className="p-3 text-center border-t border-l">Durchführung</th>
-                <th className="p-3 text-center border-t border-l">Fortbildung</th>
-                <th className="p-3 text-center border-t border-l">Teamtage</th>
-                {/* <th className="p-3 text-center border-t border-l">Feiertage</th> */}
+                <th className="p-3 text-center border-t border-gray-300">Übertrag</th>
+                <th className="p-3 text-center border-t border-l border-gray-300">Anspruch</th>
+                <th className="p-3 text-center border-t border-l border-gray-300">Gesamt</th>
+                <th className="p-3 text-center border-t border-l border-gray-300">Verplant</th>
+                <th className="p-3 text-center border-t border-l border-gray-300">Verbleibend</th>
+                <th className="p-3 text-center border-t border-l border-gray-300">Durchführung</th>
+                <th className="p-3 text-center border-t border-l border-gray-300">Fortbildung</th>
+                <th className="p-3 text-center border-t border-l border-gray-300">Teamtage</th>
+                {/* <th className="p-3 text-center border-t border-l border-gray-300">Feiertage</th> */}
               </tr>
             </thead>
             <tbody>
@@ -229,24 +229,24 @@ const YearlyOverview = () => {
 
                 return (
                   <tr key={person.id}>
-                    <td className="sticky left-0 z-10 p-3 bg-white border-t border-l border-r">
+                    <td className="sticky left-0 z-10 p-3 bg-white border-t border-l border-r border-gray-300">
                       {person.name}
                       {isPartTime && (
                         <span className="ml-2 px-2 py-0.5 text-xs font-semibold text-sky-700 bg-sky-100 rounded-full">TZ</span>
                       )}
                     </td>
-                    <td className="p-3 text-center border-t">
+                    <td className="p-3 text-center border-t border-gray-300">
                       {personResturlaub}
                     </td>
-                    <td className="p-3 text-center border-t border-l">{urlaubsanspruchAktuell}</td>
-                    <td className="p-3 text-center border-t border-l">{gesamtVerfuegbarerUrlaub}</td>
-                    <td className="p-3 text-center border-t border-l">{urlaubstageDiesesJahr}</td>
-                    <td className="p-3 text-center border-t border-l bg-gray-50 font-bold">{verbleibenderUrlaub}</td>
-                    <td className="p-3 text-center border-t border-l">{jahresDurchfuehrung}</td>
-                    <td className="p-3 text-center border-t border-l">{jahresFortbildung}</td>
-                    <td className="p-3 text-center border-t border-l">{jahresTeamtage}</td>
-                    {/* <td className="p-3 text-center border-t border-l">{jahresFeiertage}</td> */}
-                    <td className="p-3 text-center border-t border-l border-r">
+                    <td className="p-3 text-center border-t border-l border-gray-300">{urlaubsanspruchAktuell}</td>
+                    <td className="p-3 text-center border-t border-l border-gray-300">{gesamtVerfuegbarerUrlaub}</td>
+                    <td className="p-3 text-center border-t border-l border-gray-300">{urlaubstageDiesesJahr}</td>
+                    <td className="p-3 text-center border-t border-l border-gray-300 bg-gray-50 font-bold">{verbleibenderUrlaub}</td>
+                    <td className="p-3 text-center border-t border-l border-gray-300">{jahresDurchfuehrung}</td>
+                    <td className="p-3 text-center border-t border-l border-gray-300">{jahresFortbildung}</td>
+                    <td className="p-3 text-center border-t border-l border-gray-300">{jahresTeamtage}</td>
+                    {/* <td className="p-3 text-center border-t border-l border-gray-300">{jahresFeiertage}</td> */}
+                    <td className="p-3 text-center border-t border-l border-r border-gray-300">
                       <button
                         onClick={() => {
                           setAusgewaehltePersonId(person.id);
@@ -262,39 +262,39 @@ const YearlyOverview = () => {
                 );
               })}
               <tr>
-                <td className="sticky left-0 z-10 p-3 text-left bg-gray-100 border-t border-l border-b border-r">
+                <td className="sticky left-0 z-10 p-3 text-left bg-gray-100 border-t border-l border-b border-r border-gray-300">
                   <SigmaIcon className="inline-block mr-2" />
                 </td>
-                <td className="p-3 text-center border-t border-b">{'-'}
+                <td className="p-3 text-center border-t border-b border-gray-300">{'-'}
                   {/* {personen.reduce((acc, person) => acc + getPersonResturlaub(person.id), 0)} */}
                 </td>
-                <td className="p-3 text-center border-t border-l border-b">{'-'}
+                <td className="p-3 text-center border-t border-l border-b border-gray-300">{'-'}
                   {/* {personen.reduce((acc, person) => acc + getCurrentYearUrlaubsanspruch(person.id, currentYear), 0)} */}
                 </td>
-                <td className="p-3 text-center border-t border-l border-b">{'-'}
+                <td className="p-3 text-center border-t border-l border-b border-gray-300">{'-'}
                   {/* {personen.reduce((acc, person) => acc + getPersonJahresUrlaub(person.id, currentYear), 0)}     */}
                 </td>
-                <td className="p-3 text-center border-t border-l border-b">{'-'}
+                <td className="p-3 text-center border-t border-l border-b border-gray-300">{'-'}
                   {/* {personen.reduce((acc, person) => acc + getPersonJahresUrlaub(person.id, currentYear), 0)} */}
                 </td>
-                <td className="p-3 text-center border-t border-l border-b bg-gray-50">{'-'}
+                <td className="p-3 text-center border-t border-l border-b border-gray-300 bg-gray-50">{'-'}
                   {/* {personen.reduce((acc, person) => acc + getPersonResturlaub(person.id), 0) +
                     personen.reduce((acc, person) => acc + getCurrentYearUrlaubsanspruch(person.id, currentYear), 0) -
                     personen.reduce((acc, person) => acc + getPersonJahresUrlaub(person.id, currentYear), 0)} */}
                 </td>
-                <td className="p-3 text-center border-t border-l border-b">
+                <td className="p-3 text-center border-t border-l border-b border-gray-300">
                   {personen.reduce((acc, person) => acc + getPersonJahresDurchfuehrung(person.id, currentYear), 0)}
                 </td>
-                <td className="p-3 text-center border-t border-l border-b">{'-'}
+                <td className="p-3 text-center border-t border-l border-b border-gray-300">{'-'}
                   {/* {personen.reduce((acc, person) => acc + getPersonJahresFortbildung(person.id, currentYear), 0)} */}
                 </td>
-                <td className="p-3 text-center border-t border-l border-b">{'-'}
+                <td className="p-3 text-center border-t border-l border-b border-gray-300">{'-'}
                   {/* {personen.reduce((acc, person) => acc + getPersonJahresInterneTeamtage(person.id, currentYear), 0)} */}
                 </td>
-                {/* <td className="p-3 text-center border-t border-l border-b">{'-'}
+                {/* <td className="p-3 text-center border-t border-l border-b border-gray-300">{'-'}
                   {personen.reduce((acc, person) => acc + getPersonJahresFeiertage(person.id, currentYear), 0)}
                 </td> */}
-                <td className="p-3 text-center border-t border-l border-b border-r"></td>
+                <td className="p-3 text-center border-t border-l border-b border-r border-gray-300"></td>
               </tr>
             </tbody>
           </table>

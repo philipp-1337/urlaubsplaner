@@ -142,39 +142,39 @@ const MonthlyDetail = () => {
           <table className="w-full border-separate border-spacing-0">
             <thead>
               <tr className="bg-gray-100">
-                <th className="sticky left-0 z-10 p-3 text-left bg-gray-100 border-l border-t border-r">
+                <th className="sticky left-0 z-10 p-3 text-left bg-gray-100 border-l border-t border-r border-gray-300">
                   Monat
                 </th>
-                <th className="p-3 text-center border-t border-r">Urlaub</th>
-                <th className="p-3 text-center border-t border-r">Durchführung</th>
-                <th className="p-3 text-center border-t border-r">Fortbildung</th>
-                <th className="p-3 text-center border-t border-r">Teamtage</th>
-                {/* <th className="p-3 text-center border">Feiertage</th> */}
-                <th className="p-3 text-center border-t border-r">Aktionen</th>
+                <th className="p-3 text-center border-t border-r border-gray-300">Urlaub</th>
+                <th className="p-3 text-center border-t border-r border-gray-300">Durchführung</th>
+                <th className="p-3 text-center border-t border-r border-gray-300">Fortbildung</th>
+                <th className="p-3 text-center border-t border-r border-gray-300">Teamtage</th>
+                {/* <th className="p-3 text-center border border-gray-300">Feiertage</th> */}
+                <th className="p-3 text-center border-t border-r border-gray-300">Aktionen</th>
               </tr>
             </thead>
             <tbody>
               {Array.from({ length: 12 }, (_, i) => i).map((monat) => (
                 <tr key={monat}>
-                  <td className="sticky left-0 z-0 p-3 bg-white border-l border-t border-r"> {/* z-0 ist hier ok, da kein Header drüber scrollt */}
+                  <td className="sticky left-0 z-0 p-3 bg-white border-l border-t border-r border-gray-300"> {/* z-0 ist hier ok, da kein Header drüber scrollt */}
                     {getMonatsName(monat)}
                   </td>
-                  <td className="p-3 text-center border-t border-r">
+                  <td className="p-3 text-center border-t border-r border-gray-300">
                     {getPersonGesamtUrlaub(ausgewaehltePerson.id, monat, currentYear)} {/* Use person.id */}
                   </td>
-                  <td className="p-3 text-center border-t border-r">
+                  <td className="p-3 text-center border-t border-r border-gray-300">
                     {getPersonGesamtDurchfuehrung(ausgewaehltePerson.id, monat, currentYear)} {/* Use person.id */}
                   </td>
-                  <td className="p-3 text-center border-t border-r">
+                  <td className="p-3 text-center border-t border-r border-gray-300">
                     {getPersonGesamtFortbildung(ausgewaehltePerson.id, monat, currentYear)} {/* Use person.id */}
                   </td>
-                  <td className="p-3 text-center border-t border-r">
+                  <td className="p-3 text-center border-t border-r border-gray-300">
                     {getPersonGesamtInterneTeamtage(ausgewaehltePerson.id, monat, currentYear)} {/* Use person.id */}
                   </td>
-                  {/* <td className="p-3 text-center border">
+                  {/* <td className="p-3 text-center border border-gray-300">
                     {getPersonGesamtFeiertage(ausgewaehltePersonId, monat, currentYear)}
                   </td> */}
-                  <td className="p-3 text-center border-t border-r">
+                  <td className="p-3 text-center border-t border-r border-gray-300">
                     <button
                       onClick={() => {
                         setCurrentMonth(monat);
@@ -191,25 +191,25 @@ const MonthlyDetail = () => {
             </tbody>
             <tfoot>
               <tr className="bg-gray-100 font-bold">
-                <td className="sticky left-0 z-10 p-3 bg-gray-100 border"> {/* z-10 wie Header für Konsistenz */}
+                <td className="sticky left-0 z-10 p-3 bg-gray-100 border border-gray-300"> {/* z-10 wie Header für Konsistenz */}
                   Gesamt
                 </td>
-                <td className="p-3 text-center border-t border-r border-b">
+                <td className="p-3 text-center border-t border-r border-b border-gray-300">
                   {getPersonJahresUrlaub(ausgewaehltePerson.id, currentYear)} {/* Use person.id */}
                 </td>
-                <td className="p-3 text-center border-t border-r border-b">
+                <td className="p-3 text-center border-t border-r border-b border-gray-300">
                   {getPersonJahresDurchfuehrung(ausgewaehltePerson.id, currentYear)} {/* Use person.id */}
                 </td>
-                <td className="p-3 text-center border-t border-r border-b">
+                <td className="p-3 text-center border-t border-r border-b border-gray-300">
                   {getPersonJahresFortbildung(ausgewaehltePerson.id, currentYear)} {/* Use person.id */}
                 </td>
-                <td className="p-3 text-center border-t border-r border-b">
+                <td className="p-3 text-center border-t border-r border-b border-gray-300">
                   {getPersonJahresInterneTeamtage(ausgewaehltePerson.id, currentYear)} {/* Use person.id */}
                 </td>
-                {/* <td className="p-3 text-center border">
+                {/* <td className="p-3 text-center border border-gray-300">
                   {getPersonJahresFeiertage(ausgewaehltePersonId, currentYear)}
                 </td> */}
-                <td className="p-3 text-center border-t border-r border-b"></td>
+                <td className="p-3 text-center border-t border-r border-b border-gray-300"></td>
               </tr>
             </tfoot>
           </table>
